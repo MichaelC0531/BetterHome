@@ -1,0 +1,13 @@
+{%extends 'base.html'%}
+{%block content%}
+{% for job in job_list%}
+    <a href="{% url 'job_detail' job.id %}">
+        <h5>Project Work: {{ job.work }}</h5>
+        <p>Location: {{ job.location }}</p>
+        <p>Description : {{ job.description }}</p>
+        <p>Start Date: {{ job.start_date }}</p>
+        <p>Duration: {{ job.duration }}</p>
+    </a>
+{% endfor %}
+
+{%endblock%}

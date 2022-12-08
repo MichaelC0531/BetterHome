@@ -1,0 +1,10 @@
+{%extends 'base.html'%}
+{%block content%}
+<h3>Detail</h3>
+<h5>Project Work: {{ job.work }}</h5>
+<p>Location: {{ job.location }}</p>
+<p>Description : {{ job.description }}</p>
+<p>Start Date: {{ job.start_date }}</p>
+<p>Duration: {{ job.duration }}</p>
+<form action="{% url 'add_quotation' %}"
+{%endblock%}
