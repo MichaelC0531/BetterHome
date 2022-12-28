@@ -1,10 +1,30 @@
 {%extends 'base.html'%}
 {%block content%}
 <h3>Detail</h3>
-<h5>Project Work: {{ job.work }}</h5>
+<h5>Project Work: {{ job.get_work_display }}</h5>
+<p>{{ job.user.username }}</p>
 <p>Location: {{ job.location }}</p>
 <p>Description : {{ job.description }}</p>
 <p>Start Date: {{ job.start_date }}</p>
 <p>Duration: {{ job.duration }}</p>
-<form action="{% url 'add_quotation' %}"
+{% comment %} <p>identity: {{ identity.get_identity_display }}</p> {% endcomment %}
+{% if identity.get_identity_display == 'Service Provider' %}
+    <form action="{% url 'add_quotation' job.id %}" method='POST'>
+        {% csrf_token %}
+        {{ quotation_form.as_p }}
+        <input type='submit' class='btn' value='Send Quot'>
+    </form>
+{% elif job.user == request.user %}
+    <h5>Quotations</h5>
+    <table>
+        <tr>
+            <th>Service Provider</th>
+            <th>Quotation Price</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+    </table>
+
+{% endif %}
 {%endblock%}
