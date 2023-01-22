@@ -7,7 +7,11 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import QuotationForm
-# Create your views here.
+import uuid
+import boto3
+S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+BUCKET = 'betterhomeproject'
+
 # def home(request):
 #     return render(request, 'home.html')
 
