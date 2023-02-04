@@ -1,13 +1,47 @@
 {%extends 'base.html'%}
 {%block content%}
+<nav>
+    <div class="nav-wrapper">
+      <form>
+        <div class="input-field">
+          <input id="search" type="search" required>
+          <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+          <i class="material-icons">close</i>
+        </div>
+      </form>
+    </div>
+</nav>
 {% for job in job_list%}
     <a href="{% url 'job_detail' job.id %}">
-        <h5>Project Work: {{ job.work }}</h5>
-        <p>Location: {{ job.location }}</p>
-        <p>Description : {{ job.description }}</p>
-        <p>Start Date: {{ job.start_date }}</p>
-        <p>Duration: {{ job.duration }}</p>
+        <div class="row">
+            <div class="col s12 m7">
+              <div class="card">
+                <div class="card-image">
+                    {% if job.photo_set.first %}
+                    <img src="{{ job.photo_set.first.url }}">
+                    {% endif %}
+                  <span class="card-title">Card Title</span>
+                </div>
+                <div class="card-content">
+                    <h5>Project Work: {{ job.get_work_display }}</h5>
+                    <p>Location: {{ job.location }}</p>
+                    <p>Description: {{ job.description }}</p>
+                    <p>Start Date: {{ job.start_date }}</p>
+                    <p>Duration: {{ job.duration }}</p>
+                </div>
+              </div>
+            </div>
+        </div>
     </a>
-{% endfor %}
+    {% endfor %}
+    <ul class="pagination">
+        <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+        <li class="active"><a href="#!">1</a></li>
+        <li class="waves-effect"><a href="#!">2</a></li>
+        <li class="waves-effect"><a href="#!">3</a></li>
+        <li class="waves-effect"><a href="#!">4</a></li>
+        <li class="waves-effect"><a href="#!">5</a></li>
+        <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+      </ul>
 
 {%endblock%}

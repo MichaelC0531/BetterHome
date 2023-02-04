@@ -1,15 +1,16 @@
+import uuid
+import boto3
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
-from .models import Job, Identity, Quotation
+from .models import Job, Identity, Quotation, Photo
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import QuotationForm
-import uuid
-import boto3
-S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+S3_BASE_URL = 'https://s3-us-east-1.amazonaws.com/'
 BUCKET = 'betterhomeproject'
 
 # def home(request):
@@ -32,8 +33,12 @@ class JobList(ListView):
 @login_required
 def myjob_index(request):
     jobs = Job.objects.filter(user=request.user)
-    return render(request, 'jobs/myjob.html', {'jobs': jobs} )
-
+    search_term = request.GET.get('search_term', '')
+    if search_term:
+        jobs = jobs.filter(Q(work__contains=search_term) | 
+                           Q(location__contains=search_term) | 
+                           Q(description__contains=search_term))
+    return render(request, 'jobs/myjob.html', {'jobs': jobs})
 
 def job_detail(request, job_id):
     job = Job.objects.get(id=job_id)
@@ -67,6 +72,22 @@ class JobUpdate(LoginRequiredMixin, UpdateView):
 class JobDelete(LoginRequiredMixin, DeleteView):
     model = Job
     success_url = ''
+
+
+@login_required
+def add_photo(request, job_id):
+  photo_file = request.FILES.get('photo-file', None)
+  if photo_file:
+    s3 = boto3.client('s3')
+    key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+    try:
+        s3.upload_fileobj(photo_file, BUCKET, key)
+        url = f"{S3_BASE_URL}{BUCKET}/{key}"
+        photo = Photo(url=url, job_id=job_id)
+        photo.save()
+    except:
+        print('An error occurred uploading file to S3')
+  return redirect('job_detail', job_id=job_id)
 
 def signup(request):
   error_message = ''

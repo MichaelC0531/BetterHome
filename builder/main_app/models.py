@@ -6,7 +6,9 @@ from django.urls import reverse
 # Create your models here.
 WORKS = (
     ('CP','Concrete Pavement'),
-    ('WP','Wooden Patio'),
+    ('WP','Wooden Patio Building/Repairment'),
+    ('R', 'House Renovation'),
+    ('HM', 'Home Moving'),
     ('SP','Snow Shovel'),
     ('O','Others')
 )
@@ -39,8 +41,8 @@ class Job(models.Model):
     def __str__(self):
         return f"{self.get_work_display()} with {self.location}"
     
-    def get_absolute_url(self):
-        return reverse('detail', kwargs={'cat_id': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('job_detail', kwargs={'job_id': self.id})
 
 class Quotation(models.Model):
     name = models.CharField(max_length=150)
@@ -50,3 +52,10 @@ class Quotation(models.Model):
 
     class Meta:
         ordering = ['-price']
+
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Photo for job_id: {self.job_id} @{self.url}"
