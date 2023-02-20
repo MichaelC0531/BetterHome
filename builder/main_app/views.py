@@ -1,5 +1,7 @@
 import uuid
 import boto3
+from django.contrib import messages
+from django.urls import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -29,24 +31,43 @@ class Identifier(LoginRequiredMixin, CreateView):
 
 class JobList(ListView):
     model = Job
+    def get_queryset(self):
+      queryset = super().get_queryset()
+      search_term = self.request.GET.get('search_term', '')
+      if search_term:
+          queryset = queryset.filter(Q(work__contains=search_term) | 
+                            Q(location__contains=search_term) | 
+                            Q(description__contains=search_term))
+      return queryset
 
 @login_required
 def myjob_index(request):
-    jobs = Job.objects.filter(user=request.user)
+    jobs_table = None
+    if request.user.identity.get_identity_display() == 'Client':
+      jobs = Job.objects.filter(user=request.user)
+      jobs_table = jobs
+    elif request.user.identity.get_identity_display() == 'Service Provider':
+      quoted_jobs = Quotation.objects.filter(user=request.user)
+      jobs_table = quoted_jobs
     search_term = request.GET.get('search_term', '')
     if search_term:
-        jobs = jobs.filter(Q(work__contains=search_term) | 
-                           Q(location__contains=search_term) | 
-                           Q(description__contains=search_term))
-    return render(request, 'jobs/myjob.html', {'jobs': jobs})
-
+        jobs_table = jobs_table.filter(Q(work__contains=search_term) | 
+                          Q(location__contains=search_term) | 
+                          Q(description__contains=search_term))
+    return render(request, 'jobs/myjob.html', {'jobs_table': jobs_table})
+      
 def job_detail(request, job_id):
-    job = Job.objects.get(id=job_id)
-    quotation_form = QuotationForm()
     if not request.user.is_authenticated:
       return redirect('/accountslogin')
+    job = Job.objects.get(id=job_id)
+    quotation = Quotation.objects.filter(job_id=job_id)
+    quotation_form = QuotationForm()
     identity = Identity.objects.get(user=request.user)
-    return render(request, 'jobs/detail.html', {'job': job, 'quotation_form': quotation_form, 'identity': identity})
+    if identity.get_identity_display() == 'Service Provider' and not quotation.filter(user=request.user).exists():
+        show_quotation_form = True
+    else:
+        show_quotation_form = False
+    return render(request, 'jobs/detail.html', {'job': job, 'quotation_form': quotation_form, 'identity': identity, 'quotation': quotation, 'show_quotation_form': show_quotation_form})
 
 @login_required
 def add_quotation(request, job_id):
@@ -56,11 +77,15 @@ def add_quotation(request, job_id):
     new_quotation.job_id = job_id
     new_quotation.user = request.user
     new_quotation.save()
+    messages.success(request, 'Quotation submission successful')
   return redirect('job_detail', job_id=job_id)
 
 class JobCreate(LoginRequiredMixin, CreateView):
     model = Job
     fields = ['work', 'location', 'description', 'start_date', 'duration']
+    def get_success_url(self):
+        return reverse_lazy('job_detail', kwargs={'job_id': self.object.id})
+
     def form_valid(self, form):
       form.instance.user = self.request.user
       return super().form_valid(form)

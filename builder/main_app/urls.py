@@ -11,7 +11,7 @@ urlpatterns = [
   path('job/<int:pk>/delete/', views.JobDelete.as_view(), name='job_delete'),
   path('job/<int:job_id>/add_quotation', views.add_quotation, name='add_quotation'),
   #add photo
-  path('job/<int:job_id>/add_photo/', views.add_photo, name='add_photo'),
+  path('job/<int:job_id>/add_photo', views.add_photo, name='add_photo'),
   #add quot
   path('job/<int:job_id>/add_quotation/', views.add_quotation, name='add_quotation'),
   #sign up and pick ac 

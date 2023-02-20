@@ -1,36 +1,50 @@
 {% extends 'base.html'%}
 {%block content%}
-<nav>
-    <div class="nav-wrapper">
-      <form action="{% url 'myjob' %}" method='GET'>
-        <div class="input-field">
-          <input id="search" type="search" name='search_term' required>
-          <label class="label-icon" for="search"><i class="material-icons">search</i></label>
-          <i class="material-icons">close</i>
+<div class="nav-wrapper">
+    <form action="{% url 'myjob' %}" method='GET'>
+        <div class="input-field transparent">
+            <input id="search" type="search" name='search_term' required>
+            <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+            <i class="material-icons">close</i>
         </div>
-      </form>
-    </div>
-</nav>
+    </form>
+</div>
 <h1>Your Project</h1>
-{% for job in jobs %}
-<a href="{% url 'job_detail' job.id %}">
-<div class="row">
-    <div class="col s12 m7">
-      <div class="card">
+{% if request.user.identity.get_identity_display == 'Client' %}
+{% for job in jobs_table %}
+<div class="card">
+    <a href="{% url 'job_detail' job.id %}">
         <div class="card-image">
           <img src="{{ job.photo_set.first.url }}">
-          <span class="card-title">Card Title</span>
         </div>
         <div class="card-content">
             <p>Project Work: {{ job.get_work_display }}</p>
             <p>Location: {{ job.location }}</p>
             <p>Description: {{ job.description }}</p>
         </div>
-      </div>
-    </div>
+    </a>
 </div>
 {% endfor %}
-<ul class="pagination">
+{% else %}
+{% for quot in jobs_table %}
+<div class="card">
+    {% if quot.job %}
+    <a href="{% url 'job_detail' quot.job.id %}">
+        <div class="card-image">
+          <img src="{{ quot.job.photo_set.first.url }}">
+        </div>
+        <div class="card-content">
+            <p>Project Work: {{ quot.job.get_work_display }}</p>
+            <p>Location: {{ quot.job.location }}</p>
+            <p>Description: {{ quot.job.description }}</p>
+            <p>Quotation Given at ${{ quot.price }} </p>
+        </div>
+    </a>
+    {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+<ul class="pagination center">
     <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
     <li class="active"><a href="#!">1</a></li>
     <li class="waves-effect"><a href="#!">2</a></li>

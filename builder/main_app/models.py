@@ -3,7 +3,7 @@ from django.db import models
 from datetime import date
 from django.contrib.auth.models import User
 from django.urls import reverse
-# Create your models here.
+
 WORKS = (
     ('CP','Concrete Pavement'),
     ('WP','Wooden Patio Building/Repairment'),
@@ -45,11 +45,12 @@ class Job(models.Model):
     #     return reverse('job_detail', kwargs={'job_id': self.id})
 
 class Quotation(models.Model):
-    name = models.CharField(max_length=150)
     price = models.IntegerField()
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.user.username} quot {self.job} for {self.price}"
     class Meta:
         ordering = ['-price']
 

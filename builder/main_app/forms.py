@@ -4,4 +4,4 @@ from .models import Quotation
 class QuotationForm(ModelForm):
     class Meta:
         model = Quotation
-        fields = ['name', 'price']
+        fields = ['price']
