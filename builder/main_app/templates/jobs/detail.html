@@ -1,8 +1,10 @@
 {%extends 'base.html'%}
 {%block content%}
 <h3>Detail</h3>
-<h5>Project Work: {{ job.get_work_display }}</h5>
-<p>{{ job.user.username }}</p>
+<div class="row">
+    <h5 class="col s6">{{ job.get_work_display }}</h5>
+    <div class="col s6 right-align small-font grey-text text-lighten-1">{{ job.date_created }}</div>
+</div>
 <p>Location: {{ job.location }}</p>
 <p>Description : {{ job.description }}</p>
 <p>Start Date: {{ job.start_date }}</p>
@@ -35,11 +37,12 @@
             <th>Service Provider</th>
             <th>Quotation Price</th>
         </tr>
+        {% for quot in quotation %}
         <tr>
-            {% for quot in quotation %}
             <td>{{ quot.user.username }}</td>
             <td>{{ quot.price }} </td>
-            {% endfor %}
+        </tr>
+        {% endfor %}
     </table>
 
 {% endif %}

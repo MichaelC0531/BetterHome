@@ -1,6 +1,6 @@
 from random import choices
 from django.db import models
-from datetime import date
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 
@@ -36,13 +36,18 @@ class Job(models.Model):
     description = models.CharField(max_length=5000)
     start_date = models.DateField('Tentative start date')
     duration = models.IntegerField()
+    date_created = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f"{self.get_work_display()} with {self.location}"
     
-    # def get_absolute_url(self):
-    #     return reverse('job_detail', kwargs={'job_id': self.id})
+    def get_absolute_url(self):
+        return reverse('job_detail', kwargs={'job_id': self.id})
+        
+    class Meta:
+        ordering = ['-date_created']
 
 class Quotation(models.Model):
     price = models.IntegerField()
@@ -51,8 +56,9 @@ class Quotation(models.Model):
 
     def __str__(self):
         return f"{self.user.username} quot {self.job} for {self.price}"
+
     class Meta:
-        ordering = ['-price']
+        ordering = ['price']
 
 class Photo(models.Model):
     url = models.CharField(max_length=200)

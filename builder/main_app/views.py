@@ -1,5 +1,6 @@
 import uuid
 import boto3
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.db.models import Q
@@ -8,6 +9,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Job, Identity, Quotation, Photo
 from django.contrib.auth.forms import UserCreationForm
+from django.forms.widgets import DateInput
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,6 +33,7 @@ class Identifier(LoginRequiredMixin, CreateView):
 
 class JobList(ListView):
     model = Job
+    paginate_by = 10
     def get_queryset(self):
       queryset = super().get_queryset()
       search_term = self.request.GET.get('search_term', '')
@@ -38,6 +41,7 @@ class JobList(ListView):
           queryset = queryset.filter(Q(work__contains=search_term) | 
                             Q(location__contains=search_term) | 
                             Q(description__contains=search_term))
+      print(queryset.query)
       return queryset
 
 @login_required
@@ -54,7 +58,10 @@ def myjob_index(request):
         jobs_table = jobs_table.filter(Q(work__contains=search_term) | 
                           Q(location__contains=search_term) | 
                           Q(description__contains=search_term))
-    return render(request, 'jobs/myjob.html', {'jobs_table': jobs_table})
+    paginator = Paginator(jobs_table, 10) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'jobs/myjob.html', {'page_obj': page_obj})
       
 def job_detail(request, job_id):
     if not request.user.is_authenticated:
@@ -83,8 +90,10 @@ def add_quotation(request, job_id):
 class JobCreate(LoginRequiredMixin, CreateView):
     model = Job
     fields = ['work', 'location', 'description', 'start_date', 'duration']
-    def get_success_url(self):
-        return reverse_lazy('job_detail', kwargs={'job_id': self.object.id})
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['start_date'].widget = DateInput(attrs={'class': 'datepicker'})
+        return form
 
     def form_valid(self, form):
       form.instance.user = self.request.user
@@ -96,7 +105,7 @@ class JobUpdate(LoginRequiredMixin, UpdateView):
 
 class JobDelete(LoginRequiredMixin, DeleteView):
     model = Job
-    success_url = ''
+    success_url = '/myjob/'
 
 
 @login_required

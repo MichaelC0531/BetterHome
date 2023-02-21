@@ -17,5 +17,14 @@
 <script>
     var selectEl = document.getElementById('id_work');
     M.FormSelect.init(selectEl);
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.datepicker');
+        var options = {
+            format: 'yyyy-mm-dd',
+            autoClose: true,
+            setDefaultDate: true,
+        }
+        var instances = M.Datepicker.init(elems, options);
+    });
 </script>
 {%endblock%}
