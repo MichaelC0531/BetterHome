@@ -58,7 +58,7 @@ def myjob_index(request):
         jobs_table = jobs_table.filter(Q(work__contains=search_term) | 
                           Q(location__contains=search_term) | 
                           Q(description__contains=search_term))
-    paginator = Paginator(jobs_table, 10) 
+    paginator = Paginator(jobs_table, 3) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'jobs/myjob.html', {'page_obj': page_obj})
