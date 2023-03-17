@@ -22,8 +22,6 @@
                 <ul class="right">
                     <li><a href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated  %}
-                    {% comment %} <li><a href="{% url 'toys_create' %}">Add a Toy</a></li> {% endcomment %}
-                    {% comment %} <li><a href="{% url 'toys_index' %}">Company List</a></li> {% endcomment %}
                     {% if user.identity.get_identity_display != 'Service Provider' %}
                         <li><a href="{% url 'job_create' %}">Create Project</a></li>
                     {% endif %}
